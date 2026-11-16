@@ -86,7 +86,7 @@ async function createPdf(index, participant){
 
   const font = await pdf.embedFont(StandardFonts.HelveticaBold);
  const maxWidth = png.width * 0.88;
-let fontSize = Math.min(47, png.width * 0.047);
+let fontSize = Math.min(50, png.width * 0.050);
 
 while (
   font.widthOfTextAtSize(participant, fontSize) > maxWidth
