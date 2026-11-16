@@ -85,10 +85,15 @@ async function createPdf(index, participant){
   page.drawImage(png,{x:0,y:0,width:png.width,height:png.height});
 
   const font = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const maxWidth = png.width * 0.88;
-  let fontSize = Math.min(60, png.width * 0.060);
-  while(font.widthOfTextAtSize(participant,fontSize)>maxWidth && fontSize>22) fontSize -= 0.5;
+const maxWidth = png.width * 0.88;
+let fontSize = Math.min(90, png.width * 0.090);
 
+while (
+  font.widthOfTextAtSize(participant, fontSize) > maxWidth
+  && fontSize > 26
+) {
+  fontSize -= 0.5;
+}
   const textWidth = font.widthOfTextAtSize(participant,fontSize);
   const x = (png.width-textWidth)/2;
   // Area nama berada di bawah "Diberikan kepada:" dan di atas garis ornamen.
