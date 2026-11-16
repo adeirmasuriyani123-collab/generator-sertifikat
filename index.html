@@ -76,34 +76,59 @@ async function loadImages(){
   cachedImages = loaded;
   return loaded;
 }
+
 async function createPdf(index, participant){
   const { PDFDocument, StandardFonts, rgb } = PDFLib;
+
   const pdf = await PDFDocument.create();
+
   const png = await pdf.embedPng(cachedImages[index]);
-  const page = pdf.addPage([png.width, png.height]);
-  page.drawImage(png,{x:0,y:0,width:png.width,height:png.height});
+
+  // Ukuran kertas A4 horizontal
+  const pageWidth = 841.89;
+  const pageHeight = 595.28;
+
+  const page = pdf.addPage([pageWidth, pageHeight]);
+
+  // Menyesuaikan desain dengan halaman A4
+  const scaleX = pageWidth / png.width;
+  const scaleY = pageHeight / png.height;
+
+  page.drawImage(png, {
+    x: 0,
+    y: 0,
+    width: pageWidth,
+    height: pageHeight
+  });
 
   const font = await pdf.embedFont(StandardFonts.HelveticaBold);
- const maxWidth = png.width * 0.88;
-let fontSize = Math.min(55, png.width * 0.055);
 
-while (
-  font.widthOfTextAtSize(participant, fontSize) > maxWidth
-  && fontSize > 25
-) {
-  fontSize -= 0.5;
- }
-  const textWidth = font.widthOfTextAtSize(participant,fontSize);
-  const x = (png.width-textWidth)/2;
-  // Area nama berada di bawah "Diberikan kepada:" dan di atas garis ornamen.
- const y = png.height * 0.56;
-  page.drawText(participant,{
-    x,y,size:fontSize,font,
-    color:rgb(0.94,0.99,0.99),
-    opacity:1
+  let fontSize = Math.min(55, png.width * 0.055);
+  const maxWidth = png.width * 0.88;
+
+  while (
+    font.widthOfTextAtSize(participant, fontSize) > maxWidth
+    && fontSize > 25
+  ) {
+    fontSize -= 0.5;
+  }
+
+  const textWidth = font.widthOfTextAtSize(participant, fontSize);
+  const x = (png.width - textWidth) / 2;
+  const y = png.height * 0.56;
+
+  page.drawText(participant, {
+    x: x * scaleX,
+    y: y * scaleY,
+    size: fontSize * scaleX,
+    font,
+    color: rgb(0.94, 0.99, 0.99),
+    opacity: 1
   });
+
   return await pdf.save();
 }
+
 async function downloadOne(index){
   const participant = input.value.trim();
   if(!participant){input.focus();statusBox.textContent="Masukkan nama lengkap terlebih dahulu.";return}
